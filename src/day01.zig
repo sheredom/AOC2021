@@ -13,6 +13,22 @@ const gpa = util.gpa;
 
 const data = @embedFile("../data/day01.txt");
 
-pub fn main() !void {
+fn day01() void {
 
+}
+
+fn day02() void {
+
+}
+
+pub fn main() !void {
+  var timer = try std.time.Timer.start();
+  day01();
+  var part01 = timer.lap();
+  day02();
+  var part02 = timer.lap();
+
+  print("Day 01 - part 01 took {:12}ns\n", .{part01});
+  print("Day 01 - part 02 took {:12}ns\n", .{part02});
+  print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
 }

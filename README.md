@@ -1,4 +1,6 @@
-# Advent Of Code Zig Template
+🎄⚡🎄 Advent of Code 2021 Solutions 🎄⚡🎄
+
+Here is my Zig-based [Advent of Code 2021](https://adventofcode.com/2021) solutions.
 
 This repo provides a template for Advent of Code participants using Zig.  It contains a main file for each day, a build.zig file set up with targets for each day, and Visual Studio Code files for debugging.
 
