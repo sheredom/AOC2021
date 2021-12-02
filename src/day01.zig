@@ -30,15 +30,18 @@ fn day01() void {
   var depth_increases : u32 = 0;
 
   while (index < data.len) : (index += 1) {
-    if (!is_int(data[index]) and (start < index)) {
-      var depth = std.fmt.parseInt(u16, data[start..index], 10) catch |err| @panic("SHIT");
-      start = index + 1;
+    if (!is_int(data[index])) {
+      if (start < index) {
+        var depth = std.fmt.parseInt(u16, data[start..index], 10) catch |err| @panic("SHIT");
 
-      if (depth > previous_depth) {
-        depth_increases += 1;
+        if (depth > previous_depth) {
+          depth_increases += 1;
+        }
+
+        previous_depth = depth;
       }
-
-      previous_depth = depth;
+      
+      start = index + 1;
     }
   }
 
@@ -56,17 +59,20 @@ fn day02() void {
 
   // First we accumulate enough data to get us started.
   while (index < data.len) : (index += 1) {
-    if (!is_int(data[index]) and (start < index)) {
-      var depth = std.fmt.parseInt(u32, data[start..index], 10) catch |err| @panic("SHIT");
-      start = index + 1;
-      
-      window[window_index] = depth;
+    if (!is_int(data[index])) {
+      if (start < index) {
+        var depth = std.fmt.parseInt(u32, data[start..index], 10) catch |err| @panic("SHIT");
+        
+        window[window_index] = depth;
 
-      window_index += 1;
+        window_index += 1;
 
-      if (window_index == window.len) {
-        break;
+        if (window_index == window.len) {
+          break;
+        }
       }
+
+      start = index + 1;
     }
   }
 
@@ -79,27 +85,30 @@ fn day02() void {
 
   // Now we do the actual check.
   while (index < data.len) : (index += 1) {
-    if (!is_int(data[index]) and (start < index)) {
-      var depth = std.fmt.parseInt(u32, data[start..index], 10) catch |err| @panic("SHIT");
+    if (!is_int(data[index])) {
+      if (start < index) {
+        var depth = std.fmt.parseInt(u32, data[start..index], 10) catch |err| @panic("SHIT");
+
+        var result = window[window_index];
+
+        // Wipe out the window because we've consumed its value for comparison.
+        window[window_index] = 0;
+
+        // Wrap the window around to its new location.
+        window_index += 1;
+        window_index %= window.len;
+
+        // Record the depth into each window location.
+        for (window) |*item| {
+          item.* += depth;
+        }
+        
+        if (window[window_index] > result) {
+          depth_increases += 1;
+        }
+      }
+
       start = index + 1;
-
-      var result = window[window_index];
-
-      // Wipe out the window because we've consumed its value for comparison.
-      window[window_index] = 0;
-
-      // Wrap the window around to its new location.
-      window_index += 1;
-      window_index %= window.len;
-
-      // Record the depth into each window location.
-      for (window) |*item| {
-        item.* += depth;
-      }
-      
-      if (window[window_index] > result) {
-        depth_increases += 1;
-      }
     }
   }
 
