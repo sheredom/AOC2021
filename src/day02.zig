@@ -3,22 +3,6 @@ const print = std.debug.print;
 
 const data = @embedFile("../data/day02.txt");
 
-fn is_int(c : u8) bool {
-  return switch (c) {
-      '0' => true,
-      '1' => true,
-      '2' => true,
-      '3' => true,
-      '4' => true,
-      '5' => true,
-      '6' => true,
-      '7' => true,
-      '8' => true,
-      '9' => true,
-      else => false
-    };
-}
-
 const Direction = enum(u2) {
     up,
     down,
