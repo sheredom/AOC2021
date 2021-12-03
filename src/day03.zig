@@ -3,12 +3,6 @@ const print = std.debug.print;
 
 const data = @embedFile("../data/day03.txt");
 
-const Direction = enum(u2) {
-    up,
-    down,
-    forward
-};
-
 fn day01() !usize {
   var iterator = std.mem.tokenize(data, "\r\n");
 
