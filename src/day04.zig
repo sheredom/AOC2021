@@ -126,7 +126,7 @@ pub fn main() !void {
         if (boards.items.len == 0) {
           print("🎁 Last Bingo: {}\n", .{board.sumOfUnmarkedNumbers() * call});
           print("Day 04 - part 02 took {:12}ns\n", .{timer.lap()});
-          timer.reset();
+          print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
           return;
         }
 
