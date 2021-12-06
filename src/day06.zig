@@ -3,18 +3,15 @@ const print = std.debug.print;
 
 const data = @embedFile("../data/day06.txt");
 
-const util = @import("util.zig");
-const gpa = util.gpa;
-
 pub fn main() !void {
   var timer = try std.time.Timer.start();
 
-  var lanternfishes = std.ArrayList(u8).init(gpa);
+  var lanternfishes = [_]u64{0} ** 9;
 
   var iterator = std.mem.tokenize(data, ", \r\n");
 
-  while (iterator.next()) |laternfish| {
-    try lanternfishes.append(try std.fmt.parseInt(u8, laternfish, 10));
+  while (iterator.next()) |lanternfish| {
+    lanternfishes[try std.fmt.parseInt(u8, lanternfish, 10)] += 1;
   }
 
   {
@@ -22,50 +19,66 @@ pub fn main() !void {
     const days = 80;
 
     while (day < days) : (day += 1) {
-      var index : usize = 0;
-      const count = lanternfishes.items.len;
+      var zero_day_lanternfish = lanternfishes[0];
 
-      while (index < count) : (index += 1) {
-        if (lanternfishes.items[index] == 0) {
-          // Make a new fish.
-          try lanternfishes.append(8);
+      var index : usize = 1;
 
-          // And reset our timer.
-          lanternfishes.items[index] = 6;
-        } else {
-          lanternfishes.items[index] -= 1;
-        }
+      while (index < lanternfishes.len) : (index += 1) {
+        lanternfishes[index - 1] = lanternfishes[index];
       }
+
+      // When a lanternfish reaches 0, we make it relive in slot 6, but it also
+      // spawns a new fish in slot 8.
+      lanternfishes[6] += zero_day_lanternfish;
+      lanternfishes[8] = zero_day_lanternfish;
     }
   }
-    
-  print("🎁 Lanternfish after 80 days: {}\n", .{lanternfishes.items.len});
-  print("Day 06 - part 01 took {:12}ns\n", .{timer.lap()});
-  timer.reset();
+
+  {
+    var total : u64 = 0;
+
+    var index : usize = 0;
+
+    while (index < lanternfishes.len) : (index += 1) {
+      total += lanternfishes[index];
+    }
+
+    print("🎁 Lanternfish after 80 days: {}\n", .{total});
+    print("Day 06 - part 01 took {:12}ns\n", .{timer.lap()});
+    timer.reset();
+  }
 
   {
     var day : usize = 80;
     const days = 256;
 
     while (day < days) : (day += 1) {
-      var index : usize = 0;
-      const count = lanternfishes.items.len;
+      var zero_day_lanternfish = lanternfishes[0];
 
-      while (index < count) : (index += 1) {
-        if (lanternfishes.items[index] == 0) {
-          // Make a new fish.
-          try lanternfishes.append(8);
+      var index : usize = 1;
 
-          // And reset our timer.
-          lanternfishes.items[index] = 6;
-        } else {
-          lanternfishes.items[index] -= 1;
-        }
+      while (index < lanternfishes.len) : (index += 1) {
+        lanternfishes[index - 1] = lanternfishes[index];
       }
+
+      // When a lanternfish reaches 0, we make it relive in slot 6, but it also
+      // spawns a new fish in slot 8.
+      lanternfishes[6] += zero_day_lanternfish;
+      lanternfishes[8] = zero_day_lanternfish;
     }
   }
 
-  print("🎁 Lanternfish after 256 days: {}\n", .{lanternfishes.items.len});
-  print("Day 06 - part 02 took {:12}ns\n", .{timer.lap()});
-  print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
+  {
+    var total : u64 = 0;
+
+    var index : usize = 0;
+
+    while (index < lanternfishes.len) : (index += 1) {
+      total += lanternfishes[index];
+    }
+
+    print("🎁 Lanternfish after 256 days: {}\n", .{total});
+    print("Day 06 - part 02 took {:12}ns\n", .{timer.lap()});
+    print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
+  }
 }
