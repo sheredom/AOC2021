@@ -1,9 +1,6 @@
 const std = @import("std");
 const print = std.debug.print;
 
-const util = @import("util.zig");
-const gpa = util.gpa;
-
 const data = @embedFile("../data/day08.txt");
 
 pub fn count_overlap(haystack: []const u8, needle: []const u8) u8 {
