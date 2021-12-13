@@ -89,15 +89,15 @@ pub fn main() !void {
   {
     const paths = countPathsPart1(caves);
     print("🎁 Unique paths: {}\n", .{paths});
-    print("Day 12 - part 01 took {:12}ns\n", .{timer.lap()});
+    print("Day 12 - part 01 took {:15}ns\n", .{timer.lap()});
     timer.reset();
   }
 
   {
     const paths = countPathsPart2(caves);
     print("🎁 Middle score: {}\n", .{paths});
-    print("Day 12 - part 02 took {:12}ns\n", .{timer.lap()});
-    print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
+    print("Day 12 - part 02 took {:15}ns\n", .{timer.lap()});
+    print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
   }
 }
 

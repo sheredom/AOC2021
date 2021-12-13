@@ -44,7 +44,7 @@ pub fn main() !void {
     }
 
     print("🎁 Lanternfish after 80 days: {}\n", .{total});
-    print("Day 06 - part 01 took {:12}ns\n", .{timer.lap()});
+    print("Day 06 - part 01 took {:15}ns\n", .{timer.lap()});
     timer.reset();
   }
 
@@ -78,7 +78,7 @@ pub fn main() !void {
     }
 
     print("🎁 Lanternfish after 256 days: {}\n", .{total});
-    print("Day 06 - part 02 took {:12}ns\n", .{timer.lap()});
-    print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
+    print("Day 06 - part 02 took {:15}ns\n", .{timer.lap()});
+    print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
   }
 }

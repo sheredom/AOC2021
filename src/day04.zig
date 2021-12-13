@@ -118,15 +118,15 @@ pub fn main() !void {
         if (!found_winner) {
           found_winner = true;
           print("🎁 Bingo: {}\n", .{board.sumOfUnmarkedNumbers() * call});
-          print("Day 04 - part 01 took {:12}ns\n", .{timer.lap()});
+          print("Day 04 - part 01 took {:15}ns\n", .{timer.lap()});
           timer.reset();
         }
 
         // If we're the last board, we've found our last bingo!
         if (boards.items.len == 0) {
           print("🎁 Last Bingo: {}\n", .{board.sumOfUnmarkedNumbers() * call});
-          print("Day 04 - part 02 took {:12}ns\n", .{timer.lap()});
-          print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
+          print("Day 04 - part 02 took {:15}ns\n", .{timer.lap()});
+          print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
           return;
         }
 

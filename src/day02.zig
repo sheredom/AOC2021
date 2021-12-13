@@ -76,10 +76,10 @@ pub fn main() !void {
   var timer = try std.time.Timer.start();
   try day01();
   var part01 = timer.lap();
-  print("Day 02 - part 01 took {:12}ns\n", .{part01});
+  print("Day 02 - part 01 took {:15}ns\n", .{part01});
   timer.reset();
   try day02();
   var part02 = timer.lap();
-  print("Day 02 - part 02 took {:12}ns\n", .{part02});
-  print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
+  print("Day 02 - part 02 took {:15}ns\n", .{part02});
+  print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
 }

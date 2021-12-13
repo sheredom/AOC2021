@@ -59,7 +59,7 @@ pub fn main() !void {
   }
 
   print("🎁 At least two overlaps: {}\n", .{board_2nd_hit.count()});
-  print("Day 05 - part 01 took {:12}ns\n", .{timer.lap()});
+  print("Day 05 - part 01 took {:15}ns\n", .{timer.lap()});
   timer.reset();
 
   {
@@ -97,6 +97,6 @@ pub fn main() !void {
   }
 
   print("🎁 At least two overlaps: {}\n", .{board_2nd_hit.count()});
-  print("Day 05 - part 02 took {:12}ns\n", .{timer.lap()});
-  print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
+  print("Day 05 - part 02 took {:15}ns\n", .{timer.lap()});
+  print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
 }

@@ -122,8 +122,8 @@ pub fn main() !void {
 
       if (flashed.count() == 100) {
         print("🎁 First synchronized flash: {}\n", .{step + 1});
-        print("Day 11 - part 02 took {:12}ns\n", .{timer.lap()});
-        print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
+        print("Day 11 - part 02 took {:15}ns\n", .{timer.lap()});
+        print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
         break;
       }
 
@@ -140,7 +140,7 @@ pub fn main() !void {
 
       if (step == 100) {
         print("🎁 Total flashes: {}\n", .{total_flashes});
-        print("Day 11 - part 01 took {:12}ns\n", .{timer.lap()});
+        print("Day 11 - part 01 took {:15}ns\n", .{timer.lap()});
         timer.reset();
       }
     }

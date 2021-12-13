@@ -83,7 +83,7 @@ pub fn main() !void {
     }
 
     print("🎁 Sum of low points: {}\n", .{sum});
-    print("Day 09 - part 01 took {:12}ns\n", .{timer.lap()});
+    print("Day 09 - part 01 took {:15}ns\n", .{timer.lap()});
     timer.reset();
   }
 
@@ -113,8 +113,8 @@ pub fn main() !void {
       threeLargestBasins[2];
 
     print("🎁 Three largest basins sum: {}\n", .{total});
-    print("Day 09 - part 02 took {:12}ns\n", .{timer.lap()});
-    print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
+    print("Day 09 - part 02 took {:15}ns\n", .{timer.lap()});
+    print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
   }
 }
 
