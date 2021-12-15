@@ -60,7 +60,7 @@ pub fn main() !void {
     }
   }
 
-  print("🎁 Quantity: {}\n", .{try aStar(biggerMap, biggerWidth)});
+  print("🎁 Lowest total risk: {}\n", .{try aStar(biggerMap, biggerWidth)});
   print("Day 15 - part 02 took {:15}ns\n", .{timer.lap()});
   print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
 }
@@ -82,7 +82,7 @@ fn aStar(map: std.ArrayList(u8), width: usize) !usize {
   costs.items[0] = 0;
 
   while (openSet.items.len > 0) {
-    const current = openSet.swapRemove(0);
+    const current = openSet.orderedRemove(0);
 
     if (current == (map.items.len - 1)) {
       return costs.items[current] + map.items[current] - map.items[0];
@@ -92,12 +92,13 @@ fn aStar(map: std.ArrayList(u8), width: usize) !usize {
     const y = current / width;
 
     const cost = map.items[current] + costs.items[current];
+
     if (x > 0) {
       const neighbour = current - 1;
 
       if (cost < costs.items[neighbour]) {
         costs.items[neighbour] = cost;
-        try openSet.append(neighbour);
+        try appendNeighbour(neighbour, &openSet, costs);
       }
     }
 
@@ -106,7 +107,7 @@ fn aStar(map: std.ArrayList(u8), width: usize) !usize {
 
       if (cost < costs.items[neighbour]) {
         costs.items[neighbour] = cost;
-        try openSet.append(neighbour);
+        try appendNeighbour(neighbour, &openSet, costs);
       }
     }
 
@@ -115,7 +116,7 @@ fn aStar(map: std.ArrayList(u8), width: usize) !usize {
 
       if (cost < costs.items[neighbour]) {
         costs.items[neighbour] = cost;
-        try openSet.append(neighbour);
+        try appendNeighbour(neighbour, &openSet, costs);
       }
     }
 
@@ -124,26 +125,42 @@ fn aStar(map: std.ArrayList(u8), width: usize) !usize {
 
       if (cost < costs.items[neighbour]) {
         costs.items[neighbour] = cost;
-        try openSet.append(neighbour);
-      }
-    }
-
-    // Sort the set so that the first element is the cheapest cost.
-    std.sort.sort(usize, openSet.items, costs, compare);
-
-    // De-duplicate the set too.
-    var index : u32 = 1;
-
-    while (index < openSet.items.len) {
-      if (openSet.items[index - 1] == openSet.items[index]) {
-        const removed = openSet.swapRemove(index);
-      } else {
-        index += 1;
+        try appendNeighbour(neighbour, &openSet, costs);
       }
     }
   }
 
   unreachable;
+}
+
+fn appendNeighbour(neighbour : usize, openSet : *std.ArrayList(usize), costs : std.ArrayList(u32)) !void {
+  // First pass we remove our neighbour if its already in the set.
+  {
+    for (openSet.items) |item, i| {
+      if (item == neighbour) {
+        const removed = openSet.orderedRemove(i);
+        break;
+      }
+    }
+  }
+
+  var insertIndex : ?usize = null;
+
+  // Second pass we insert our neighbour at the correct location.
+  for (openSet.items) |item, i| {
+    if (compare(costs, item, neighbour)) {
+      continue;
+    }
+
+    insertIndex = i;
+    break;
+  }
+
+  if (insertIndex == null) {
+    try openSet.append(neighbour);
+  } else {
+    try openSet.insert(insertIndex.?, neighbour);
+  }
 }
 
 fn compare(costs: std.ArrayList(u32), a: usize, b: usize) bool {
