@@ -134,19 +134,8 @@ fn aStar(map: std.ArrayList(u8), width: usize) !usize {
 }
 
 fn appendNeighbour(neighbour : usize, openSet : *std.ArrayList(usize), costs : std.ArrayList(u32)) !void {
-  // First pass we remove our neighbour if its already in the set.
-  {
-    for (openSet.items) |item, i| {
-      if (item == neighbour) {
-        const removed = openSet.orderedRemove(i);
-        break;
-      }
-    }
-  }
-
   var insertIndex : ?usize = null;
 
-  // Second pass we insert our neighbour at the correct location.
   for (openSet.items) |item, i| {
     if (compare(costs, item, neighbour)) {
       continue;
@@ -160,6 +149,21 @@ fn appendNeighbour(neighbour : usize, openSet : *std.ArrayList(usize), costs : s
     try openSet.append(neighbour);
   } else {
     try openSet.insert(insertIndex.?, neighbour);
+    
+    // If we inserted ourselves within the set, we might have already been in the set (with a higher cost).
+    // So run from just after we inserted to the end to check if we exist again, and remove ourselves if
+    // we happen to!
+    {
+      var index = insertIndex.? + 1;
+
+      while (index < openSet.items.len) : (index += 1) {
+        const item = openSet.items[index];
+        if (item == neighbour) {
+          const removed = openSet.orderedRemove(index);
+          break;
+        }
+      }
+    }
   }
 }
 
