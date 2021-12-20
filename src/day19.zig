@@ -66,43 +66,51 @@ const Point = struct {
   }
 };
 
+const FixedBeaconIterator = struct {
+  buffer : []const Point,
+  index : usize,
+
+  pub fn init(buffer : []const Point) @This() {
+    return @This() {
+      .buffer = buffer,
+      .index = 0
+    };
+  }
+
+  pub fn next(me : *@This()) ?Point {
+    if (me.index == me.buffer.len) {
+      return null;
+    }
+
+    var point = me.buffer[me.index];
+
+    me.index += 1;
+
+    return point;
+  }
+};
+
 const BeaconIterator = struct {
   buffer : []const Point,
   index : usize,
   rotation : u6,
-  position : ?Point,
 
-  pub fn init(buffer : []const Point, rotation : u6, position : ?Point) @This() {
+  pub fn init(buffer : []const Point, rotation : u6) @This() {
+    // There are only 24 'real' rotations , continuous from [0..20), then [24..27).
+    // Map our input rotation into this range now.
+    std.debug.assert(rotation < 24);
+
+    var actualRotation = rotation;
+    
+    if (actualRotation >= 20) {
+      actualRotation += 4;
+    }
+
     return BeaconIterator {
       .buffer = buffer,
       .index = 0,
-      .rotation = rotation,
-      .position = position,
+      .rotation = actualRotation,
     };
-  }
-
-  fn rotate(a : *i32, b : *i32, rotation: u2) void {
-    const aOld = a.*;
-    const bOld = b.*;
-
-    switch (rotation) {
-      0 => {},
-      1 => {
-        // 90 degrees
-        a.* = bOld;
-        b.* = -aOld;
-      },
-      2 => {
-        // 180 degrees
-        a.* = -aOld;
-        b.* = -bOld;
-      },
-      3 => {
-        // 270 degrees
-        a.* = -bOld;
-        b.* = aOld;
-      }
-    }
   }
 
   pub fn next(me : *@This()) ?Point {
@@ -116,16 +124,80 @@ const BeaconIterator = struct {
     const yRotation = @intCast(u2, (me.rotation >> 2) & 0x3);
     const zRotation = @intCast(u2, (me.rotation >> 4) & 0x3);
 
-    rotate(&point.x, &point.y, xRotation);
-    rotate(&point.y, &point.z, yRotation);
-    rotate(&point.x, &point.z, zRotation);
+    {
+      const aOld = point.x;
+      const bOld = point.y;
+
+      switch (xRotation) {
+        0 => {},
+        1 => {
+          // 90 degrees
+          point.x = bOld;
+          point.y = -aOld;
+        },
+        2 => {
+          // 180 degrees
+          point.x = -aOld;
+          point.y = -bOld;
+        },
+        3 => {
+          // 270 degrees
+          point.x = -bOld;
+          point.y = aOld;
+        }
+      }
+    }
+    
+    {
+      const aOld = point.y;
+      const bOld = point.z;
+
+      switch (yRotation) {
+        0 => {},
+        1 => {
+          // 90 degrees
+          point.y = bOld;
+          point.z = -aOld;
+        },
+        2 => {
+          // 180 degrees
+          point.y = -aOld;
+          point.z = -bOld;
+        },
+        3 => {
+          // 270 degrees
+          point.y = -bOld;
+          point.z = aOld;
+        }
+      }
+    }
+    
+    {
+      const aOld = point.x;
+      const bOld = point.z;
+
+      switch (zRotation) {
+        0 => {},
+        1 => {
+          // 90 degrees
+          point.x = bOld;
+          point.z = -aOld;
+        },
+        2 => {
+          // 180 degrees
+          point.x = -aOld;
+          point.z = -bOld;
+        },
+        3 => {
+          // 270 degrees
+          point.x = -bOld;
+          point.z = aOld;
+        }
+      }
+    }
 
     // Bump our index too!
     me.index += 1;
-
-    if (me.position != null) {
-      point = point.add(me.position.?);
-    }
 
     return point;
   }
@@ -134,14 +206,12 @@ const BeaconIterator = struct {
 const Scanner = struct {
   beacons : std.ArrayList(Point),
   aligned : bool,
-  rotation : u6,
   position : ?Point,
 
   pub fn init(allocator : *std.mem.Allocator) @This() {
     return Scanner {
       .beacons = std.ArrayList(Point).init(gpa),
       .aligned = false,
-      .rotation = 0,
       .position = null,
     };
   }
@@ -155,22 +225,29 @@ const Scanner = struct {
   }
 
   pub fn fix(me : *@This(), rotation : u6, position : Point) void {
+    var iterator = me.rotatedIterator(rotation);
+
+    var index : u32 = 0;
+    while (iterator.next()) |next| {
+      me.beacons.items[index] = next.add(position);
+      index += 1;
+    }
+
     me.aligned = true;
-    me.rotation = rotation;
     me.position = position;
   }
 
-  pub fn fixedIterator(me : *const @This()) BeaconIterator {
+  pub fn fixedIterator(me : *const @This()) FixedBeaconIterator {
     std.debug.assert(me.aligned);
     std.debug.assert(me.beacons.items.len != 0);
-    return BeaconIterator.init(me.beacons.items, me.rotation, me.position);
+    return FixedBeaconIterator.init(me.beacons.items);
   }
 
   pub fn rotatedIterator(me : *const @This(), rotation : u6) BeaconIterator {
     // We cannot rotate an already aligned scanner!
     std.debug.assert(!me.aligned);
     std.debug.assert(me.beacons.items.len != 0);
-    return BeaconIterator.init(me.beacons.items, rotation, null);
+    return BeaconIterator.init(me.beacons.items, rotation);
   }
 };
 
@@ -236,9 +313,9 @@ pub fn calculateScanners(input : []const u8) !std.ArrayList(Scanner) {
           continue;
         }
 
-        var rotation : u6 = 0;
+        var rotation : u5 = 0;
 
-        while (true) {
+        while (rotation < 24) : (rotation += 1) {
           var fixedIterator = other.fixedIterator();
           while (fixedIterator.next()) |fixed| {
             if (scanner.aligned) {
@@ -266,10 +343,6 @@ pub fn calculateScanners(input : []const u8) !std.ArrayList(Scanner) {
                 break;
               }
             }
-          }
-
-          if (@addWithOverflow(u6, rotation, 1, &rotation)) {
-            break;
           }
         }
       }
