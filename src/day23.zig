@@ -8,31 +8,58 @@ const data = @embedFile("../data/day23.txt");
 
 pub fn main() !void {
   var timer = try std.time.Timer.start();
-  var burrow = Burrow.init(data);
 
-  print("🎁 Num moves: {}\n", .{try burrow.cost()});
-  print("Day 23 - part 01 took {:15}ns\n", .{timer.lap()});
-  timer.reset();
+  {
+    var burrow = Burrow.init(data, false);
 
-  print("🎁 On Cubes: {}\n", .{42});
-  print("Day 23 - part 02 took {:15}ns\n", .{timer.lap()});
-  print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
+    print("🎁 Num moves: {}\n", .{try burrow.cost()});
+    print("Day 23 - part 01 took {:15}ns\n", .{timer.lap()});
+    timer.reset();
+  }
+
+  {
+    var burrow = Burrow.init(data, true);
+
+    print("🎁 On Cubes: {}\n", .{try burrow.cost()});
+    print("Day 23 - part 02 took {:15}ns\n", .{timer.lap()});
+    print("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️\n", .{});
+  }
 }
 
 const Burrow = struct {
-  rooms : [8]u8,
+  rooms : [16]u8,
   hallway : [11]u8,
+  roomSize : usize,
 
-  pub fn init(input : []const u8) @This() {
+  pub fn init(input : []const u8, part2 : bool) @This() {
     var iterator = std.mem.tokenize(input, "#\r\n. ");
 
     var me = @This() {
-      .rooms = [_]u8{'.'} ** 8,
+      .rooms = [_]u8{'.'} ** 16,
       .hallway = [_]u8{'.'} ** 11,
+      .roomSize = if (part2) 16 else 8,
     };
 
-    for (me.rooms) |*room| {
+    for (me.rooms[0..8]) |*room| {
       room.* = iterator.next().?[0];
+    }
+
+    if (part2) {
+      for (me.rooms[4..8]) |room, i| {
+        me.rooms[12 + i] = room;
+      }
+
+      // Insert the new rooms.
+      // #D#C#B#A#
+      // #D#B#A#C#
+      me.rooms[4] = 'D';
+      me.rooms[5] = 'C';
+      me.rooms[6] = 'B';
+      me.rooms[7] = 'A';
+      me.rooms[8] = 'D';
+      me.rooms[9] = 'B';
+      me.rooms[10] = 'A';
+      me.rooms[11] = 'C';
     }
 
     return me;
@@ -66,12 +93,15 @@ const Burrow = struct {
     }
 
     {
-      print("  #", .{});
-      var index : u32 = 0;
-      for (me.rooms[4..8]) |p| {
-        print("{c}#", .{p});
+      var index : usize = 4;
+
+      while (index < me.roomSize) : (index += 4) {
+        print("  #", .{});
+        for (me.rooms[index..(index + 4)]) |p| {
+          print("{c}#", .{p});
+        }
+        print("  \n", .{});
       }
-      print("  \n", .{});
     }
 
     {
@@ -127,12 +157,30 @@ const Burrow = struct {
     if (inRoom and targetRoom(me.rooms[room]) == (room % 4)) {
       // ... unless we are blocking someone who isn't meant to be in our room
       // in there!
-      if (room < 4) {
-        if (targetRoom(me.rooms[room + 4]) == (room % 4)) {
+
+      // If we're at the bottom of the room we can't be blocking anyone!
+      if (room >= (me.roomSize - 4)) {
+        return false;
+      }
+
+      var checkRoom = room;
+
+      while (checkRoom < (me.roomSize - 4)) : (checkRoom += 4) {
+        if (targetRoom(me.rooms[checkRoom + 4]) == (checkRoom % 4)) {
           return false;
         }
-      } else {
-        return false;
+      }
+    } else if (me.hallway[hallway] != '.') {
+      const target = targetRoom(me.hallway[hallway]);
+      var index : usize = 0;
+      while (index < me.roomSize) : (index += 4) {
+        const roomValue = me.rooms[target + index];
+
+        if (roomValue == '.') {
+          continue;
+        } else if (roomValue != me.hallway[hallway]) {
+          return false;
+        }
       }
     }
 
@@ -158,9 +206,6 @@ const Burrow = struct {
       }
     }
 
-    if (room == 1 and me.rooms[room] == 'C') {
-      me.dump();
-    }
     return true;
   }
 
@@ -182,31 +227,27 @@ const Burrow = struct {
     var moves = Moves.init();
 
     // First we check the top positions in each room for moves.
-    for (me.rooms[0..4]) |r, ri| {
-      switch (r) {
-        'A', 'B', 'C', 'D' => {
-          for (me.hallway) |h, hi| {
-            if (me.isLegalMove(ri, hi)) {
-              moves.append(ri, hi);
-            }
+    {
+      var index : usize = 0;
+
+      while (index < me.roomSize) : (index += 4) {
+        for (me.rooms[index..(index + 4)]) |r, ri| {
+          if (index >= 4 and me.rooms[index - 4 + ri] != '.') {
+            continue;
           }
-        },
-        '.' => {
-          // An empty top position we cannot move from, but we can maybe move
-          // from the bottom position in the room!
-          switch (me.rooms[ri + 4]) {
+
+          switch (r) {
             'A', 'B', 'C', 'D' => {
               for (me.hallway) |h, hi| {
-                if (me.isLegalMove(ri + 4, hi)) {
-                  moves.append(ri + 4, hi);
+                if (me.isLegalMove(ri + index, hi)) {
+                  moves.append(ri + index, hi);
                 }
               }
             },
             '.' => {},
             else => unreachable,
           }
-        },
-        else => unreachable,
+        }
       }
     }
 
@@ -214,14 +255,19 @@ const Burrow = struct {
       switch (h) {
         'A', 'B', 'C', 'D' => {
           var ri = targetRoom(h);
+          var offset : usize = 0;
           if (me.rooms[ri] == '.' and me.isLegalMove(ri, hi)) {
             // Check if the full room is empty, if so we'll move to the bottom
             // position.
-            if (me.rooms[ri + 4] == '.') {
-              ri += 4;
+            var index : usize = 4;
+
+            while (index < me.roomSize) : (index += 4) {
+              if (me.rooms[ri + index] == '.') {
+                offset += 4;
+              }
             }
 
-            moves.append(ri, hi);
+            moves.append(ri + offset, hi);
           }
         },
         '.' => {},
@@ -255,15 +301,17 @@ const Burrow = struct {
   }
 
   fn finished(me : *const @This()) bool {
-    return
-      me.rooms[0] == 'A' and
-      me.rooms[1] == 'B' and
-      me.rooms[2] == 'C' and
-      me.rooms[3] == 'D' and
-      me.rooms[4] == 'A' and
-      me.rooms[5] == 'B' and
-      me.rooms[6] == 'C' and
-      me.rooms[7] == 'D';
+    for (me.rooms[0..me.roomSize]) |r, ri| {
+      switch (ri % 4) {
+        0 => if (r != 'A') return false,
+        1 => if (r != 'B') return false,
+        2 => if (r != 'C') return false,
+        3 => if (r != 'D') return false,
+        else => unreachable,
+      }
+    }
+
+    return true;
   }
 
   const Potential = struct {
@@ -368,9 +416,15 @@ test "example" {
 \\  #########
 ;
 
-  var burrow = Burrow.init(input);
+  {
+    var burrow = Burrow.init(input, false);
+    const result = try burrow.cost();
+    try std.testing.expect(result == 12521);
+  }
 
-  const result = try burrow.cost();
-
-  try std.testing.expect(result == 12521);
+  {
+    var burrow = Burrow.init(input, true);
+    const result = try burrow.cost();
+    try std.testing.expect(result == 44169);
+  }
 }
