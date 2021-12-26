@@ -106,13 +106,12 @@ const Program = struct {
     me.instructions.deinit();
   }
 
-  pub fn part1(me : *const @This(), input : [14]u8) bool {
-    for (input) |i| {
-      print("{}", .{i});
-    }
+  const State = struct {
+    registers : [4]i64,
+    index : usize,
+  };
 
-    print("\n", .{});
-    
+  pub fn part1(me : *const @This(), input : [14]u8, map : *std.AutoHashMap(i64, State)) bool {    
     var inputIndex : u8 = 0;
 
     var registers = [_]i64{0} ** 4;
@@ -120,8 +119,6 @@ const Program = struct {
     for (me.instructions.items) |instruction| {
       const a = instruction.a;
       const b = instruction.b;
-
-      //print("{} {} {} [{} {} {} {}]\n", .{instruction.ty, a, b, registers[0], registers[1], registers[2], registers[3]});
       
       switch (instruction.ty) {
         Type.inp => {
@@ -139,6 +136,8 @@ const Program = struct {
         Type.mod_imm => registers[@intCast(usize, a)] = @mod(registers[@intCast(usize, a)], b),
         Type.eql_imm => registers[@intCast(usize, a)] = if (registers[@intCast(usize,a)] == b) 1 else 0,
       }
+
+      print("{} {} {} [{} {} {} {}]\n", .{instruction.ty, a, b, registers[0], registers[1], registers[2], registers[3]});
     }
 
     return registers['z' - 'w'] == 0;
@@ -149,10 +148,17 @@ pub fn main() !void {
   const program = try Program.init(data, gpa);
   defer program.deinit();
 
-  var input = [_]u8{9} ** 14;
+  var input = [_]u8{1} ** 14;
+
+  var map = std.AutoHashMap(i64, void).init(gpa);
+
+  var discard = program.part1(input, &map);
+  if (!discard) {
+    unreachable;
+  }
 
   // Best guess so far was 99999952878116
-  while (!program.part1(input)) {
+  while (!program.part1(input, &map)) {
     var index : u8 = 14;
 
     while (index > 0) : (index -= 1) {
